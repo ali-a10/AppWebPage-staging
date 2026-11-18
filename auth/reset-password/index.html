@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reset your password — LetsPlay</title>
+    <meta
+      name="description"
+      content="Open this password reset link on a phone with the LetsPlay app installed."
+    />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0D5C63" />
+    <link rel="icon" type="image/png" href="../../assets/logo.png" />
+    <link rel="apple-touch-icon" href="../../assets/logo.png" />
+    <link rel="stylesheet" href="../../assets/styles.css" />
+  </head>
+  <body>
+    <!-- =========== Top navigation =========== -->
+    <header class="nav">
+      <div class="container nav__inner">
+        <a class="nav__brand" href="../../index.html" aria-label="LetsPlay home">
+          <img src="../../assets/logo.png" alt="LetsPlay" />
+        </a>
+        <nav class="nav__links">
+          <a class="nav__link" href="../../index.html">Home</a>
+          <a class="nav__link" href="../../contact.html">Contact</a>
+          <a class="nav__link" href="../../privacy.html">Privacy</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="applink">
+      <div class="applink__card">
+        <svg
+          class="applink__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="3.5" y="10.5" width="17" height="11" rx="2.5" />
+          <path d="M7.5 10.5V7a4.5 4.5 0 0 1 9 0v3.5" />
+          <circle cx="12" cy="16" r="1.25" />
+        </svg>
+        <h1>Reset your password</h1>
+
+        <!-- By the time this renders, Supabase has already used up the emailed link and
+             swapped it for a one-time ?code=. The password itself is untouched: only the
+             app that asked for the reset can redeem that code, only for about 5 minutes
+             after the reset was requested, and the new password is set there. So there is
+             no "you're already done" state here, and no way to finish on a computer. -->
+        <div id="state-confirmed" hidden>
+          <p>Tap below to choose a new password in the app.</p>
+          <!-- No href in the markup on purpose: the script sets it before revealing this
+               block, so a script that never runs leaves inert text rather than another
+               button that looks tappable and does nothing. -->
+          <a class="applink__btn" id="open-app">Open in the LetsPlay app</a>
+          <p class="applink__note">
+            Reset links only work for about 5 minutes after you ask for one. If
+            the app says the link expired, request a new reset from the login
+            screen.
+          </p>
+        </div>
+
+        <div id="state-desktop" hidden>
+          <p>
+            Password resets have to be finished on your phone. Open LetsPlay on
+            your phone, tap <strong>Forgot password</strong>, and open the new
+            email on that phone.
+          </p>
+        </div>
+
+        <div id="state-expired" hidden>
+          <p>That link has expired or was already used.</p>
+          <p class="applink__note">
+            Request a new reset from the LetsPlay login screen, then tap the link
+            in the email within 5 minutes.
+          </p>
+        </div>
+
+        <div id="state-generic">
+          <p>
+            This link resets your LetsPlay password inside the app. Open it on
+            the phone that has LetsPlay installed.
+          </p>
+        </div>
+
+        <p class="applink__note">
+          Still stuck? <a href="../../contact.html">Contact support</a> and
+          we&rsquo;ll help you get back in.
+        </p>
+      </div>
+    </main>
+
+    <!-- =========== Footer =========== -->
+    <footer class="footer">
+      <div class="container footer__inner">
+        <span>&copy; 2026 LetsPlay Inc.</span>
+        <nav class="footer__links">
+          <a href="../../contact.html">Contact</a>
+          <a href="../../privacy.html">Privacy Policy</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script>
+      // Reads `a=1&b=2` from either a query string or a URL fragment.
+      function params(input) {
+        return new URLSearchParams((input || "").replace(/^[?#]/, ""));
+      }
+
+      // Returns the letsplay:// URL handing `code` back to the app, or null if there is none.
+      //
+      // The https URL cannot be reused for this. Chrome on iOS has been seen not handing
+      // Universal Links to the app, and Safari refuses to hand off a link tapped on a page of
+      // the same domain — so the old button, pointed at window.location.href, could never
+      // work. A custom scheme is not a web page, so the browser has to pass it to the OS.
+      //
+      // Only `code` is forwarded, deliberately. A custom scheme is unverified — any app may
+      // claim letsplay:// — and a PKCE code is the one auth value that survives that: redeeming
+      // it needs the verifier held by the real app on this device, so an interceptor gets
+      // nothing. Implicit-flow tokens (#access_token) are bearer credentials and must never
+      // travel this way.
+      function appHandoffUrl(path, search) {
+        var code = params(search).get("code");
+        return code ? "letsplay://" + path + "?code=" + encodeURIComponent(code) : null;
+      }
+
+      // Returns true on a computer, where a letsplay:// button has nothing to open. iPads that
+      // ask for desktop sites report "Macintosh", so a touchscreen Mac counts as a phone.
+      function isDesktop(userAgent, maxTouchPoints) {
+        if (/iPhone|iPad|iPod|Android/i.test(userAgent)) return false;
+        return !(/Macintosh/.test(userAgent) && maxTouchPoints > 1);
+      }
+
+      // Picks which block applies: a usable code, an expired link, or neither. A code on a
+      // computer gets the "finish on your phone" message, since the button there can't work.
+      function handoffState(search, hash, desktop) {
+        if (params(search).get("code")) return desktop ? "desktop" : "confirmed";
+        if (params(hash).get("error") || params(search).get("error")) return "expired";
+        return "generic";
+      }
+
+      (function () {
+        var state = handoffState(
+          window.location.search,
+          window.location.hash,
+          isDesktop(navigator.userAgent, navigator.maxTouchPoints || 0)
+        );
+        if (state === "generic") return; // already the markup's default, so JS-off is correct
+
+        // href first, then reveal — never show a button that isn't wired up yet.
+        if (state === "confirmed") {
+          document.getElementById("open-app").href = appHandoffUrl(
+            "auth/reset-password",
+            window.location.search
+          );
+        }
+
+        document.getElementById("state-generic").hidden = true;
+        document.getElementById("state-" + state).hidden = false;
+      })();
+    </script>
+  </body>
+</html>

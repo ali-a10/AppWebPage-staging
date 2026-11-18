@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Join this event on LetsPlay</title>
+    <meta
+      name="description"
+      content="To view and join this event, download LetsPlay — pickup sports near you."
+    />
+    <meta name="theme-color" content="#0D5C63" />
+
+    <!--
+      Open Graph tags for messaging apps. These are static: GitHub Pages can't
+      render per-event metadata, and this page is served with HTTP 404, which
+      some scrapers refuse to preview at all. Cheap insurance, not a guarantee.
+      Copy is aimed at the /event/ case — that's the link people actually paste.
+    -->
+    <meta property="og:title" content="Join this event on LetsPlay" />
+    <meta
+      property="og:description"
+      content="To view and join this event, download LetsPlay — pickup sports near you."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LetsPlay" />
+    <meta property="og:image" content="https://letsplayapp.ca/assets/logo.png" />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- Root-absolute paths throughout: this file is served from arbitrary
+         URLs like /event/<uuid>, where relative paths would resolve wrong. -->
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="apple-touch-icon" href="/assets/logo.png" />
+    <link rel="stylesheet" href="/assets/styles.css" />
+
+    <script>
+      // Runs before paint so the correct half renders immediately.
+      if (window.location.pathname.indexOf("/event/") === 0) {
+        document.documentElement.className = "is-event";
+      }
+    </script>
+  </head>
+  <body>
+    <!-- =========== Top navigation =========== -->
+    <header class="nav">
+      <div class="container nav__inner">
+        <a class="nav__brand" href="/index.html" aria-label="LetsPlay home">
+          <img src="/assets/logo.png" alt="LetsPlay" />
+        </a>
+        <nav class="nav__links">
+          <a class="nav__link" href="/index.html">Home</a>
+          <a class="nav__link" href="/contact.html">Contact</a>
+          <a class="nav__link" href="/privacy.html">Privacy</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="applink">
+      <!-- =========== Shared event link (/event/<uuid>) =========== -->
+      <div class="applink__card nf-event">
+        <svg
+          class="applink__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+          <line x1="8" y1="3" x2="8" y2="7" />
+          <line x1="16" y1="3" x2="16" y2="7" />
+          <polyline points="9,15 11,17 15,13" />
+        </svg>
+        <h1>Join this event on LetsPlay</h1>
+        <p>To view and join this event, download LetsPlay.</p>
+
+        <div class="applink__badges">
+          <a
+            class="store-badge"
+            href="https://apps.apple.com/ca/app/letsplay-pickup-sports/id6804315546?itscg=30200&amp;itsct=apps_box_link&amp;mttnsubad=6804315546"
+          >
+            <img src="/assets/app-store-badge.svg" alt="Download on the App Store" />
+          </a>
+          <a
+            class="store-badge"
+            href="https://play.google.com/store/apps/details?id=ca.letsplayapp.letsplay"
+          >
+            <img src="/assets/google-play-badge.png" alt="Get it on Google Play" />
+          </a>
+        </div>
+        <p class="applink__note" id="already">
+          Already have the app? <a id="retry" href="/index.html">Open this event</a>
+        </p>
+      </div>
+
+      <!-- =========== Ordinary 404 =========== -->
+      <div class="applink__card nf-generic">
+        <svg
+          class="applink__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="9" />
+          <line x1="12" y1="8" x2="12" y2="13" />
+          <circle cx="12" cy="16.25" r="1" fill="currentColor" stroke="none" />
+        </svg>
+        <h1>Page not found</h1>
+        <p>
+          The page you&rsquo;re looking for doesn&rsquo;t exist or has moved.
+        </p>
+        <a class="applink__btn" href="/index.html">Back to home</a>
+      </div>
+    </main>
+
+    <!-- =========== Footer =========== -->
+    <footer class="footer">
+      <div class="container footer__inner">
+        <span>&copy; 2026 LetsPlay Inc.</span>
+        <nav class="footer__links">
+          <a href="/contact.html">Contact</a>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="/terms.html">Terms of Service</a>
+          <a href="/cancellation.html">Cancellation Policy</a>
+          <a href="/delete-account.html">Delete Account</a>
+        </nav>
+      </div>
+      <p class="container footer__legal">
+        Apple and the Apple logo are trademarks of Apple Inc., registered in the
+        U.S. and other countries. App Store is a service mark of Apple Inc.
+        Google Play and the Google Play logo are trademarks of Google LLC.
+      </p>
+    </footer>
+
+    <script>
+      // Hand the event to the app over the letsplay:// scheme, the same way the
+      // auth pages do. Pointing this link at window.location.href (the https URL)
+      // could never work: Safari won't fire a Universal Link tapped on a page of
+      // the same domain, and in-app browsers (Snapchat, Instagram) ignore
+      // Universal Links entirely. A custom scheme isn't a web page, so the browser
+      // has to pass it to the OS.
+      //
+      // Android gets an intent:// URL instead, so Chrome can fall back to the
+      // Play Store when the app isn't installed rather than showing an error.
+      // Falls back to the homepage href above if the script doesn't run.
+      (function () {
+        var retry = document.getElementById("retry");
+        var match = window.location.pathname.match(/^\/event\/([A-Za-z0-9-]+)\/?$/);
+        if (!retry || !match) return;
+
+        // Instagram's in-app browser won't hand letsplay:// links to the app, so the "Open this
+        // event" link does nothing there. Point people at its menu instead; in a real browser
+        // the link works.
+        if (/Instagram/.test(navigator.userAgent)) {
+          document.getElementById("already").innerHTML =
+            "Already have the app? Tap <strong>&#8943;</strong> at the top right and choose " +
+            "<strong>Open in external browser</strong>.";
+          return;
+        }
+
+        var path = "event/" + match[1];
+        var pkg = "ca.letsplayapp.letsplay";
+
+        if (/Android/i.test(navigator.userAgent)) {
+          retry.href =
+            "intent://" + path +
+            "#Intent;scheme=letsplay;package=" + pkg +
+            ";S.browser_fallback_url=" +
+            encodeURIComponent("https://play.google.com/store/apps/details?id=" + pkg) +
+            ";end";
+        } else {
+          retry.href = "letsplay://" + path;
+        }
+      })();
+    </script>
+
+  </body>
+</html>
