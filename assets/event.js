@@ -503,16 +503,8 @@
     var pkg = CONFIG.androidPackage || "ca.letsplayapp.letsplay";
     var path = "event/" + eventId + (inviteCode ? "?code=" + encodeURIComponent(inviteCode) : "");
 
-    // Instagram's in-app browser won't hand custom-scheme links to the app.
-    if (/Instagram/.test(navigator.userAgent)) {
-      return h("p", { className: "ev-openapp" }, [
-        "Already have the app? Tap ",
-        h("strong", null, "⋯"),
-        " at the top right and choose ",
-        h("strong", null, "Open in external browser"),
-        ".",
-      ]);
-    }
+    // Instagram's in-app browser won't hand custom-scheme links to the app, so show nothing there.
+    if (/Instagram/.test(navigator.userAgent)) return null;
 
     var href = /Android/i.test(navigator.userAgent)
       ? "intent://" + path + "#Intent;scheme=" + scheme + ";package=" + pkg +
@@ -815,7 +807,10 @@
       h("h2", { className: "ev-section-title", style: "color: var(--text); font-size: 16px" }, "Get the app to hear about changes"),
       h("p", { className: "ev-muted", style: "margin: 0 0 4px" }, "Time changes, cancellations and the event chat all live in the app."),
       getAppBlock(true),
-      h("p", { className: "ev-muted", style: "margin: 10px 0 0; text-align: center" }, "Already have the app? Log in with this email using a code. No password needed."),
+      h("p", { className: "ev-muted", style: "margin: 10px 0 0; text-align: center" },
+        state.user && state.user.email
+          ? ["Log in with ", h("strong", null, state.user.email), " using a code. No password needed."]
+          : "Log in with your email using a code. No password needed."),
     ]);
 
     var cancelArea = null;
