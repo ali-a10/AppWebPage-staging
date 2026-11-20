@@ -45,6 +45,7 @@
       crossorigin="anonymous"
       defer
     ></script>
+    <script src="/assets/sport-surfaces.js" defer></script>
     <script src="/assets/event.js" defer></script>
 
     <script>
@@ -60,12 +61,20 @@
       <div class="container nav__inner">
         <a class="nav__brand" href="/index.html" aria-label="LetsPlay home">
           <img src="/assets/logo.png" alt="LetsPlay" />
+          <!-- Slim wordmark, shown instead of the square logo on the event page only. -->
+          <img class="nav__wordmark" src="/assets/logo-wordmark.png" alt="LetsPlay" />
         </a>
         <nav class="nav__links">
           <a class="nav__link" href="/index.html">Home</a>
           <a class="nav__link" href="/contact.html">Contact</a>
           <a class="nav__link" href="/privacy.html">Privacy</a>
         </nav>
+        <!-- Event page only. event.js points it at Google Play on Android phones. -->
+        <a
+          class="nav__getapp"
+          href="https://apps.apple.com/ca/app/letsplay-pickup-sports/id6804315546?itscg=30200&amp;itsct=apps_box_link&amp;mttnsubad=6804315546"
+          >Get the app</a
+        >
       </div>
     </header>
 

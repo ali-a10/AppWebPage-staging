@@ -39,6 +39,12 @@
   var root = document.getElementById("event-app");
   if (!root || window.location.pathname.indexOf("/event/") !== 0) return;
 
+  // The header's "Get the app" button links to the App Store; Android phones get Google Play.
+  var navGetApp = document.querySelector(".nav__getapp");
+  if (navGetApp && /Android/i.test(navigator.userAgent)) {
+    navGetApp.href = "https://play.google.com/store/apps/details?id=ca.letsplayapp.letsplay";
+  }
+
   /* ================================================================== helpers */
 
   /** Creates an element with attributes and children (strings become text nodes, so they are never parsed as HTML). */
@@ -528,23 +534,34 @@
     ]);
   }
 
-  /** The 2:1 banner: the host's photo, or the sport's colour with a faded icon. */
+  /**
+   * The sport's playing surface (same artwork as the app), or null if sport-surfaces.js didn't
+   * load, in which case the plain sport-colour gradient behind it shows instead.
+   */
+  function sportArt(sport) {
+    if (!window.LetsPlaySportSurfaces) return null;
+    var svg = window.LetsPlaySportSurfaces.svg(sport, sportColor(sport));
+    svg.setAttribute("class", "ev-banner__surface");
+    return svg;
+  }
+
+  /** The 2:1 banner: the host's photo, or the sport's playing surface from above. */
   function banner(ev, className) {
     var color = sportColor(ev.sport);
     var el = h("div", { className: className || "ev-banner" });
     el.style.background = "linear-gradient(135deg, " + color + " 0%, " + darken(color, 0.35) + " 100%)";
 
+    // Always drawn, so a photo that fails to load falls back to the sport artwork underneath.
+    var art = sportArt(ev.sport);
+    if (art) el.appendChild(art);
     if (ev.photo_url) {
       var img = h("img", { src: ev.photo_url, alt: "" });
-      // If the photo fails to load, the sport artwork underneath shows instead.
       img.addEventListener("error", function () {
         img.remove();
       });
       el.appendChild(img);
-      el.appendChild(h("div", { className: "ev-banner__scrim" }));
-    } else {
-      el.appendChild(icon(ICONS.ball, "ev-banner__art"));
     }
+    el.appendChild(h("div", { className: "ev-banner__scrim" }));
 
     var chips = h("div", { className: "ev-chips" }, h("span", { className: "ev-chip" }, sportLabel(ev.sport)));
     if (ev.is_private) {
@@ -559,7 +576,12 @@
     var color = sportColor(ev.sport);
     var thumb = h("div", { className: "ev-thumb" });
     thumb.style.background = "linear-gradient(135deg, " + color + " 0%, " + darken(color, 0.35) + " 100%)";
-    if (ev.photo_url) thumb.appendChild(h("img", { src: ev.photo_url, alt: "" }));
+    if (ev.photo_url) {
+      thumb.appendChild(h("img", { src: ev.photo_url, alt: "" }));
+    } else {
+      var art = sportArt(ev.sport);
+      if (art) thumb.appendChild(art);
+    }
     return h("section", { className: "ev-card ev-summary" }, [
       thumb,
       h("div", { className: "ev-stack" }, [
