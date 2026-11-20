@@ -755,7 +755,7 @@
     var price = h("div", { className: "ev-price" }, [
       h("div", { className: "ev-stack" }, [
         h("span", { className: "ev-muted" }, "Price"),
-        h("span", { className: "ev-price__amount" }, ev.is_paid ? formatMoney(ev.price_cents) + " per spot" : "Free"),
+        h("span", { className: "ev-price__amount" }, ev.is_paid ? formatMoney(ev.price_cents) + " per person" : "Free"),
         ev.is_paid && ev.total_cents > ev.price_cents
           ? h("span", { className: "ev-muted" }, formatMoney(ev.total_cents) + " with fees")
           : null,
