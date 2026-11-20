@@ -597,7 +597,7 @@
   }
 
   /** The description with "Show more" when it runs past 4 lines. */
-  function aboutSection(text) {
+  function aboutParts(text) {
     var desc = h("p", { className: "ev-desc is-clamped" }, text);
     var more = h("button", { type: "button", className: "ev-linkbtn", hidden: true }, "Show more");
     more.addEventListener("click", function () {
@@ -608,11 +608,7 @@
     requestAnimationFrame(function () {
       if (desc.scrollHeight > desc.clientHeight + 1) more.hidden = false;
     });
-    return h("section", { className: "ev-card ev-pad" }, [
-      h("h2", { className: "ev-section-title" }, "About"),
-      desc,
-      more,
-    ]);
+    return [h("h2", { className: "ev-section-title" }, "About"), desc, more];
   }
 
   /** Who's going (signed-in view only): host first, with a Host badge, then everyone else. */
@@ -750,13 +746,13 @@
         hostName
           ? h("div", { className: "ev-row ev-host" }, [
               h("div", { className: "ev-avatar", "aria-hidden": "true" }, initialsOf(ev.host_first_name, ev.host_last_name)),
-              h("span", { className: "ev-host__text" }, ["Hosted by ", h("strong", null, hostName)]),
+              h("span", { className: "ev-host__text" }, ["Hosted by ", h("strong", null, hostName.replace(/\.$/, ""))]),
             ])
           : null,
       ]),
     ]);
 
-    var price = h("section", { className: "ev-card ev-pad ev-price" }, [
+    var price = h("div", { className: "ev-price" }, [
       h("div", { className: "ev-stack" }, [
         h("span", { className: "ev-muted" }, "Price"),
         h("span", { className: "ev-price__amount" }, ev.is_paid ? formatMoney(ev.price_cents) + " per spot" : "Free"),
@@ -778,9 +774,12 @@
     show(
       h("div", { className: "ev" }, [
         card,
-        price,
+        // Price, spots left and the description share one card.
+        h("section", { className: "ev-card ev-pad" }, [
+          price,
+          ev.description ? h("div", { className: "ev-about" }, aboutParts(ev.description)) : null,
+        ]),
         ev.signedIn ? peopleSection(ev) : null,
-        ev.description ? aboutSection(ev.description) : null,
         h("div", { className: "ev-card ev-pad" }, getAppBlock(true)),
         accountLine(),
       ]),

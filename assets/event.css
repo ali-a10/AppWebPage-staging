@@ -316,7 +316,13 @@
   color: #92400E;
 }
 
-/* ---------- About ---------- */
+/* ---------- About (sits under the price, in the same card) ---------- */
+.ev-about {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
 .ev-section-title {
   margin: 0 0 8px;
   font-size: 15px;
@@ -361,7 +367,7 @@
   z-index: 5;
   background: var(--card);
   border-top: 1px solid var(--border);
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  padding: 10px 16px env(safe-area-inset-bottom);
 }
 
 .ev-joinbar__inner {
@@ -530,6 +536,11 @@
   font-size: 14px;
   padding: 10px 16px;
   border-radius: 999px;
+}
+
+/* Smaller trademark line in the footer on the event page. */
+.is-event .footer__legal {
+  font-size: 10.5px;
 }
 
 /* Room under the footer so the fixed Join bar never covers it. */
