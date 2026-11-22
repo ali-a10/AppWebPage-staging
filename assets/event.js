@@ -756,14 +756,16 @@
     ]);
 
     // Same as the app's capacity card, without the list of names.
-    var fill = ev.max_participants ? Math.min(100, (ev.going / ev.max_participants) * 100) : 0;
+    // An older get-public-event doesn't send the count; then show only "spots left", with no bar.
+    var hasCount = typeof ev.going === "number" && ev.max_participants > 0;
+    var fill = hasCount ? Math.min(100, (ev.going / ev.max_participants) * 100) : 0;
     var capacity = h("div", { className: "ev-capacity" + (spots <= 3 ? " is-low" : "") }, [
       h("div", { className: "ev-capacity__head" }, [
         icon(ICONS.users, "ev-capacity__icon"),
-        h("span", { className: "ev-capacity__title" }, ev.going + " going"),
+        h("span", { className: "ev-capacity__title" }, hasCount ? ev.going + " going" : ""),
         h("span", { className: "ev-capacity__spots" }, spots === 1 ? "1 spot left" : spots + " spots left"),
       ]),
-      h("div", { className: "ev-progress", "aria-hidden": "true" }, h("div", { className: "ev-progress__fill", style: "width: " + fill + "%" })),
+      hasCount ? h("div", { className: "ev-progress", "aria-hidden": "true" }, h("div", { className: "ev-progress__fill", style: "width: " + fill + "%" })) : null,
     ]);
 
     var joinBtn = h("button", { type: "button", className: "ev-btn" }, "Join");

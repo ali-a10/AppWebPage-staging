@@ -295,6 +295,11 @@
   margin-bottom: 12px;
 }
 
+/* No bar under it (older server reply): no gap either. */
+.ev-capacity__head:last-child {
+  margin-bottom: 0;
+}
+
 .ev-capacity__icon {
   width: 18px;
   height: 18px;
