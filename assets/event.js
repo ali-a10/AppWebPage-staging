@@ -108,6 +108,7 @@
     ban: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z", "M4.9 4.9l14.2 14.2"],
     star: ["M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"],
     calendar: ["M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z", "M3 10h18", "M8 3v4", "M16 3v4"],
+    info: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z", "M12 11v5", "M12 8h.01"],
     padlock: ["M8 11V8a4 4 0 0 1 8 0v3", "M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z"],
   };
 
@@ -421,6 +422,8 @@
       total_cents: isPaid ? totalWithFees(row.price_cents) : null,
       is_private: !!row.is_private,
       spots_left: Math.max(0, (row.max_participants || 0) - (row.current_participants || 0)),
+      going: row.current_participants || 0,
+      max_participants: row.max_participants || 0,
       host_first_name: hostGone ? "" : host.first_name,
       host_last_name: hostGone ? "" : host.last_name,
       participants: participants,
@@ -608,7 +611,7 @@
     requestAnimationFrame(function () {
       if (desc.scrollHeight > desc.clientHeight + 1) more.hidden = false;
     });
-    return [h("h2", { className: "ev-section-title" }, "About"), desc, more];
+    return [h("h2", { className: "ev-about__title" }, [icon(ICONS.info, "ev-about__icon"), "About this event"]), desc, more];
   }
 
   /** Who's going (signed-in view only): host first, with a Host badge, then everyone else. */
@@ -752,31 +755,38 @@
       ]),
     ]);
 
-    var price = h("div", { className: "ev-price" }, [
-      h("div", { className: "ev-stack" }, [
-        h("span", { className: "ev-muted" }, "Price"),
-        h("span", { className: "ev-price__amount" }, ev.is_paid ? formatMoney(ev.price_cents) + " per person" : "Free"),
-        ev.is_paid && ev.total_cents > ev.price_cents
-          ? h("span", { className: "ev-muted" }, formatMoney(ev.total_cents) + " with fees")
-          : null,
+    // Same as the app's capacity card, without the list of names.
+    var fill = ev.max_participants ? Math.min(100, (ev.going / ev.max_participants) * 100) : 0;
+    var capacity = h("div", { className: "ev-capacity" + (spots <= 3 ? " is-low" : "") }, [
+      h("div", { className: "ev-capacity__head" }, [
+        icon(ICONS.users, "ev-capacity__icon"),
+        h("span", { className: "ev-capacity__title" }, ev.going + " going"),
+        h("span", { className: "ev-capacity__spots" }, spots === 1 ? "1 spot left" : spots + " spots left"),
       ]),
-      h("span", { className: "ev-spots" + (spots <= 3 ? " is-low" : "") }, spots === 1 ? "1 spot left" : spots + " spots left"),
+      h("div", { className: "ev-progress", "aria-hidden": "true" }, h("div", { className: "ev-progress__fill", style: "width: " + fill + "%" })),
     ]);
 
-    var joinBtn = h("button", { type: "button", className: "ev-btn" }, ev.is_paid ? "Join · " + formatMoney(ev.total_cents) : "Join for free");
+    var joinBtn = h("button", { type: "button", className: "ev-btn" }, "Join");
     joinBtn.addEventListener("click", onJoinTapped);
 
+    // Bottom strip like the app's: the price on the left, Join on the right.
     var joinBar = h("div", { className: "ev-joinbar" }, h("div", { className: "ev-joinbar__inner" }, [
-      joinBtn,
+      h("div", { className: "ev-joinbar__row" }, [
+        h("div", { className: "ev-joinbar__price" }, [
+          h("span", { className: "ev-joinbar__amount" }, ev.is_paid ? formatMoney(ev.price_cents) : "Free"),
+          ev.is_paid ? h("span", { className: "ev-joinbar__per" }, "per person") : null,
+        ]),
+        joinBtn,
+      ]),
       h("span", { className: "ev-joinbar__note" }, state.user ? "Joining as " + (state.user.email || "you") : "No app needed. Join with your email."),
     ]));
 
     show(
       h("div", { className: "ev" }, [
         card,
-        // Price, spots left and the description share one card.
+        // Who's going and the description share one card.
         h("section", { className: "ev-card ev-pad" }, [
-          price,
+          capacity,
           ev.description ? h("div", { className: "ev-about" }, aboutParts(ev.description)) : null,
         ]),
         ev.signedIn ? peopleSection(ev) : null,

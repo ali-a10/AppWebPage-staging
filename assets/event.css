@@ -287,36 +287,74 @@
   font-weight: 600;
 }
 
-/* ---------- Price / spots ---------- */
-.ev-price {
+/* ---------- Going + spots left (the app's capacity card, without the names) ---------- */
+.ev-capacity__head {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
-.ev-price__amount {
-  font-size: 18px;
-  font-weight: 700;
+.ev-capacity__icon {
+  width: 18px;
+  height: 18px;
+  color: var(--teal);
+  flex-shrink: 0;
 }
 
-.ev-spots {
-  font-size: 13px;
+.ev-capacity__title {
+  flex: 1;
+  font-size: 17px;
   font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 999px;
-  white-space: nowrap;
-  background: var(--teal-wash);
   color: var(--teal);
 }
 
-/* 3 or fewer left: the app's orange, in shades that pass contrast. */
-.ev-spots.is-low {
-  background: #FEF3C7;
-  color: #92400E;
+.ev-capacity__spots {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ev-progress {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--teal-wash);
+  overflow: hidden;
+}
+
+.ev-progress__fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--mint);
+}
+
+/* 3 or fewer left: the app's orange, in a shade that passes contrast as text. */
+.is-low .ev-capacity__spots {
+  color: #B45309;
+}
+
+.is-low .ev-progress__fill {
+  background: #F59E0B;
 }
 
 /* ---------- About (sits under the price, in the same card) ---------- */
+.ev-about__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ev-about__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
 .ev-about {
   margin-top: 14px;
   padding-top: 14px;
@@ -404,6 +442,33 @@
 .ev-btn:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+.ev-joinbar__row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ev-joinbar__row .ev-btn {
+  flex: 1;
+}
+
+.ev-joinbar__price {
+  display: flex;
+  flex-direction: column;
+}
+
+.ev-joinbar__amount {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.ev-joinbar__per {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .ev-joinbar__note {
