@@ -96,7 +96,7 @@
     check: ["M5 12.5l4.5 4.5L19 7.5"],
     lock: ["M7 11V8a5 5 0 0 1 10 0v3", "M5 11h14v10H5z"],
     ball: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z", "M2 12h20", "M12 2v20", "M4.9 4.9c3.5 3 3.5 11.2 0 14.2", "M19.1 4.9c-3.5 3-3.5 11.2 0 14.2"],
-    users: ["M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z", "M2 21a7 7 0 0 1 14 0", "M17 11h5"],
+    users: ["M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z", "M2 21v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1", "M16 3.13a4 4 0 0 1 0 7.75", "M22 21v-1a5 5 0 0 0-3.5-4.77"],
     x: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z", "M15 9l-6 6", "M9 9l6 6"],
     clock: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z", "M12 7v5l3 2"],
     search: ["M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z", "M21 21l-4.3-4.3"],
@@ -104,6 +104,7 @@
     pause: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z", "M10 9v6", "M14 9v6"],
     wifi: ["M2 8.8a15 15 0 0 1 20 0", "M5 12.5a10 10 0 0 1 14 0", "M8.5 16a5 5 0 0 1 7 0", "M12 20h.01"],
     back: ["M15 6l-6 6 6 6"],
+    chevronDown: ["M6 9l6 6 6-6"],
     mail: ["M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z", "M3.5 6.5l8.5 6.5 8.5-6.5"],
     ban: ["M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z", "M4.9 4.9l14.2 14.2"],
     star: ["M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"],
@@ -632,10 +633,33 @@
     });
     return h("section", { className: "ev-card ev-pad" }, [
       h("h2", { className: "ev-section-title" }, "Going (" + people.length + ")"),
-      people.length
-        ? h("ul", { className: "ev-people" }, rows)
-        : h("p", { className: "ev-muted", style: "margin: 0" }, "No one yet. Be the first!"),
+      peopleList(ev, rows),
     ]);
+  }
+
+  /** The names, or a "no one yet" line. */
+  function peopleList(ev, rows) {
+    return ev.participants.length
+      ? h("ul", { className: "ev-people" }, rows)
+      : h("p", { className: "ev-muted", style: "margin: 0" }, "No one yet. Be the first!");
+  }
+
+  /** "Participants" row with a chevron that opens and closes the list of names, like the app. Starts closed. */
+  function participantsDropdown(ev) {
+    var inner = peopleSection(ev).querySelector(".ev-people, p");
+    var list = h("div", { className: "ev-dropdown__list", id: "ev-participants", hidden: true }, inner);
+    var chevron = icon(ICONS.chevronDown, "ev-dropdown__chevron");
+    var toggle = h("button", { type: "button", className: "ev-dropdown__toggle", "aria-expanded": "false", "aria-controls": "ev-participants" }, [
+      h("span", null, "Participants"),
+      chevron,
+    ]);
+    toggle.addEventListener("click", function () {
+      var open = list.hidden;
+      list.hidden = !open;
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.classList.toggle("is-open", open);
+    });
+    return h("div", { className: "ev-dropdown" }, [toggle, list]);
   }
 
   /** The copy-address button (same as the app: a copy icon, no text). */
@@ -766,6 +790,8 @@
         h("span", { className: "ev-capacity__spots" }, spots === 1 ? "1 spot left" : spots + " spots left"),
       ]),
       hasCount ? h("div", { className: "ev-progress", "aria-hidden": "true" }, h("div", { className: "ev-progress__fill", style: "width: " + fill + "%" })) : null,
+      // Signed in: the names, in a dropdown under the bar.
+      ev.signedIn ? participantsDropdown(ev) : null,
     ]);
 
     var joinBtn = h("button", { type: "button", className: "ev-btn" }, "Join");
@@ -791,7 +817,6 @@
           capacity,
           ev.description ? h("div", { className: "ev-about" }, aboutParts(ev.description)) : null,
         ]),
-        ev.signedIn ? peopleSection(ev) : null,
         h("div", { className: "ev-card ev-pad" }, getAppBlock(true)),
         accountLine(),
       ]),

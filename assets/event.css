@@ -295,6 +295,43 @@
   margin-bottom: 12px;
 }
 
+/* Signed in: "Participants" dropdown under the bar, like the app's. */
+.ev-dropdown {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.ev-dropdown__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 0 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.ev-dropdown__chevron {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.ev-dropdown__toggle.is-open .ev-dropdown__chevron {
+  transform: rotate(180deg);
+}
+
+.ev-dropdown__list {
+  padding-top: 12px;
+}
+
 /* No bar under it (older server reply): no gap either. */
 .ev-capacity__head:last-child {
   margin-bottom: 0;
